@@ -4,13 +4,13 @@ const int LEDg = 8; // green
 const int LEDr = 7; // red
 
 /* phototransistors */
-const int PTl = 0; // right
-const int PTr = 1; // left
-// const int PTs = ; // straight
+const int PTl = 0; // left
+const int PTr = 1; // right
+ const int PTs = 2; // straight
 
 /* motors */
-const int Mr = 5; // right
-const int Ml = 6; // left
+const int Mr = 6; // right
+const int Ml = 5; // left
 
 /* calibrated constants */
 int PTr_calibrated = 0;
@@ -24,7 +24,7 @@ void setup() {
   pinMode(LEDr, OUTPUT);
   pinMode(PTr, INPUT);
   pinMode(PTl, INPUT);
-//  pinMode(PTs, INPUT);
+  pinMode(PTs, INPUT);
   pinMode(Mr, OUTPUT);
   pinMode(Ml, OUTPUT);
   /* calibration of IR sensors */
@@ -44,65 +44,80 @@ void setup() {
     PTl_calibrated += analogRead(PTl);
   }
 
-//  for (int i = 0; i < 50; i++) {
-//      if(analogRead(PTs) < 0) {
-//        i--;
-//        continue;
-//      }
-//    PTs_calibrated += analogRead(PTs);
-//  }
+  for (int i = 0; i < 50; i++) {
+      if(analogRead(PTs) < 0) {
+        i--;
+        continue;
+      }
+    PTs_calibrated += analogRead(PTs);
+  }
 
   PTr_calibrated /= 50;
   PTl_calibrated /= 50;
-//  PTs_calibrated /= 50;
+  PTs_calibrated /= 50;
 
-  Serial.println("Right Calibrated ");
-  Serial.println(PTr_calibrated);
-  Serial.println("Left Calibrated: "); 
-  Serial.println(PTl_calibrated);
+  Serial.print("Right Calibrated ");
+  Serial.print(PTr_calibrated);
+  Serial.print(" Left Calibrated: "); 
+  Serial.print(PTl_calibrated);
+  Serial.print(" Straight Calibrated: ");
+  Serial.println(PTs_calibrated);
 }
 
 void loop() {
-
   int PTr_reading = map(analogRead(PTr), 0, PTr_calibrated, 0, 1023);
-  int PTl_reading = map(analogRead(PTl), 0, PTr_calibrated, 0, 1023);
-//  int PTs_reading = map(analogRead(PTs), 0, 1023, PTs_calibrated, 1023);
-  
-  Serial.println("Right: ");
-  Serial.println(/*analogRead(PTr)*/PTr_reading);
-  Serial.println("Left: ");
-  Serial.println(/*analogRead(PTl)*/PTl_reading);
-  delay(300);
-//
-//  if (PTr_reading < 500 /*INSERT VALUE*/) {
-//    digitalWrite(LEDg, LOW);
-//    digitalWrite(LEDb, LOW);
-//    digitalWrite(LEDr, HIGH);
-//    analogWrite(Ml, 255);
-//    analogWrite(Mr, /*low value*/);
-//  }
-//
-//  else if (PTl_reading < 500 /*INSERT VALUE*/) {
-//    digitalWrite(LEDr, LOW);
-//    digitalWrite(LEDg, LOW);
-//    digitalWrite(LEDb, HIGH);
-//    analogWrite(Mr, 255);
-//    analogWrite(Ml, /*low value*/);
-//  }
-//
-//  else if (PTs_reading < 500/*INSERT VALUE*/) {
-//    digitalWrite(LEDr, LOW);
-//    digitalWrite(LEDb, LOW);
-//    digitalWrite(LEDg, HIGH);
-//    analogWrite(Mr, 255);
-//    analogWrite(Ml, 255);
-//  }
-//
-//  else if (analogRead(PTl) < 500 /*value*/ && analogRead(PTr) < 500/*value*/ && analogRead(PTs) < 500/*value*/) {
-//    analogWrite(Mr, 0);
-//    analogWrite(Ml, 0);
-//    digitalWrite(LEDg, LOW);
-//    digitalWrite(LEDr, HIGH);
-//    digitalWrite(LEDb, HIGH);
-//  }
+  int PTl_reading = map(analogRead(PTl), 0, PTl_calibrated, 0, 1023);
+  int PTs_reading = map(analogRead(PTs), PTs_calibrated, 1023, 0, 1023);
+
+//Serial.print("Right: ");
+//Serial.print(analogRead(PTr));
+//Serial.print(" Left: ");
+//Serial.print(analogRead(PTl));
+//Serial.print(" Straight: ");
+//Serial.println(analogRead(PTs));
+
+  Serial.print("l ");
+  Serial.print(PTl_reading);
+  Serial.print(" s ");
+  Serial.print(PTs_reading);
+  Serial.print(" r ");
+  Serial.println(PTr_reading);
+
+
+  if (PTr_reading < 550) {
+    digitalWrite(LEDg, LOW);
+    digitalWrite(LEDb, LOW);
+    digitalWrite(LEDr, HIGH);
+    analogWrite(Ml, 155);
+    analogWrite(Mr, 200);
+  }
+
+  else if (PTl_reading < 800) {
+    digitalWrite(LEDr, LOW);
+    digitalWrite(LEDg, LOW);
+    digitalWrite(LEDb, HIGH);
+    analogWrite(Mr, 155);
+    analogWrite(Ml, 200);
+  }
+
+  else if (PTs_reading < 20) {
+    digitalWrite(LEDr, LOW);
+    digitalWrite(LEDb, LOW);
+    digitalWrite(LEDg, HIGH);
+    analogWrite(Mr, 155);
+    analogWrite(Ml, 155);
+  }
+
+  else if (PTl_reading < 800  && PTr_reading < 550 && PTs_reading < 20) {
+    analogWrite(Mr, 255);
+    analogWrite(Ml, 255);
+    digitalWrite(LEDg, LOW);
+    digitalWrite(LEDr, HIGH);
+    digitalWrite(LEDb, HIGH);
+  }
+
+  else {
+    digitalWrite(LEDr, LOW);
+    digitalWrite(LEDb, LOW);
+  }
 }
