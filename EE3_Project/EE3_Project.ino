@@ -19,9 +19,9 @@ unsigned int PTs_calibrated = 0;
 
 /* Motor speed */
 const int right_fast_speed = 25;
-const int right_slow_speed = 255;
-const int left_fast_speed = 75;
-const int left_slow_speed = 255;
+const int right_slow_speed = 230;
+const int left_fast_speed = 40;
+const int left_slow_speed = 230;
 const int straight_offset = 0; //should be a negative value
 bool readyToStop = false;
 
@@ -33,6 +33,7 @@ const int s_white = 961;
 const int r_black = 450;
 const int r_white = 959;
 const float white_black_diff = 0.8;
+const float stop_white_black_diff = 0.6;
 
 /* Right and Left */
 bool prev_right = false;
@@ -111,8 +112,8 @@ void loop() {
 //Serial.print(analogRead(PTs));
 //Serial.print(" r ");
 //Serial.println(analogRead(PTr));
-
-  /*Serial.print(" l ");
+/*
+  Serial.print(" l ");
   Serial.print(PTl_reading);
   Serial.print(" C ");
   Serial.print(PTl_calibrated);
@@ -123,12 +124,12 @@ void loop() {
   Serial.print(" r ");
   Serial.print(PTr_reading);
   Serial.print(" C ");
-  Serial.println(PTr_calibrated);*/
-
+  Serial.println(PTr_calibrated);
+*/
     /* Stop */
-  if (PTl_reading < PTl_calibrated * white_black_diff && 
-      PTr_reading < PTr_calibrated * white_black_diff && 
-      PTs_reading < PTs_calibrated / white_black_diff) {
+  if (PTl_reading < PTl_calibrated * stop_white_black_diff && 
+      PTr_reading < PTr_calibrated * stop_white_black_diff && 
+      PTs_reading < PTs_calibrated / stop_white_black_diff) {
     analogWrite(Mr, 255); //turn off
     analogWrite(Ml, 255); //turn off
     while(true) {
